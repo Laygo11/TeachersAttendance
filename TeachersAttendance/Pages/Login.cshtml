@@ -1,0 +1,121 @@
+﻿@page
+@model TeachersAttendance.Pages.LoginModel
+@{
+    ViewData["Title"] = "Teacher Login";
+    Layout = "_Layout";
+}
+
+<style>
+    .login-wrapper {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-card {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+        .login-card .icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .login-card h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 0.2rem;
+        }
+
+        .login-card p.subtitle {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .login-card label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: #495057;
+        }
+
+        .login-card .form-control {
+            border-radius: 6px;
+            padding: 0.6rem 0.85rem;
+            font-size: 0.95rem;
+        }
+
+        .login-card .btn-primary {
+            width: 100%;
+            padding: 0.65rem;
+            font-weight: 500;
+            border-radius: 6px;
+            background-color: #0d6efd;
+            border: none;
+            margin-top: 0.5rem;
+        }
+
+            .login-card .btn-primary:hover {
+                background-color: #0b5ed7;
+            }
+
+    .alert-danger {
+        font-size: 0.875rem;
+        border-radius: 6px;
+    }
+
+    .hint-box {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 1.25rem;
+    }
+
+        .hint-box strong {
+            color: #495057;
+        }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="icon">🏫</div>
+        <h2>Teacher Attendance</h2>
+        <p class="subtitle">Sign in to view your schedule and log attendance.</p>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">@Model.ErrorMessage</div>
+        }
+
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Employee Number</label>
+                <input type="text" class="form-control" name="EmployeeNumber"
+                       placeholder="e.g. T001" required autocomplete="username"
+                       style="text-transform:uppercase;" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" name="Password"
+                       placeholder="Enter your password" required autocomplete="current-password" />
+            </div>
+            <button type="submit" class="btn btn-primary">Sign In</button>
+        </form>
+
+        <div class="hint-box">
+            <strong>Sample logins:</strong><br />
+            T001 / jeremy123 &nbsp;·&nbsp; T002 / rod123 &nbsp;·&nbsp; T003 / edzel123
+        </div>
+    </div>
+</div>
