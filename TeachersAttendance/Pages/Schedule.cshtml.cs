@@ -54,7 +54,6 @@ namespace TeachersAttendance.Pages
                         TodaySchedule.Add(MapItem(r));
                 }
 
-                // Full weekly schedule
                 string weekQuery = @"
                     SELECT sub.SubjectName, s.StartTime, s.EndTime, s.Room, s.DayOfWeek
                     FROM Schedules s
