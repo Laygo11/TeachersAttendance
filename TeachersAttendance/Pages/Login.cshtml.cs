@@ -68,15 +68,8 @@ namespace TeachersAttendance.Pages
                 checkCmd.Parameters.AddWithValue("@id", teacherId);
                 int existing = Convert.ToInt32(checkCmd.ExecuteScalar());
 
-                if (existing == 0)
-                {
-                    string insert = @"INSERT INTO Attendance (TeacherID, Date, TimeIn, Status)
-                                      VALUES (@id, CURDATE(), CURTIME(), 'Present')";
-                    var insertCmd = new MySqlCommand(insert, conn);
-                    insertCmd.Parameters.AddWithValue("@id", teacherId);
-                    insertCmd.ExecuteNonQuery();
-                }
             }
+
             HttpContext.Session.SetInt32("TeacherID", teacherId);
             return RedirectToPage("/Schedule");
         }

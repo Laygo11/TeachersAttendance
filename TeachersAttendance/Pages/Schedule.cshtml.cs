@@ -45,9 +45,9 @@ namespace TeachersAttendance.Pages
                         }
                     }
 
-                    // 2. Get Schedules (Using your Subject ID with space)
+                    // 2. Get Schedules Log (Using Subject ID with space)
                     string sQuery = "SELECT sub.SubjectName, sch.DayOfWeek, sch.StartTime, sch.EndTime, sch.Room " +
-                                    "FROM Schedules sch JOIN Subjects sub ON sch.`Subject ID` = sub.`Subject ID` " +
+                                    "FROM Schedules sch JOIN Subjects sub ON sch.SubjectID = sub.SubjectID " +
                                     "WHERE sch.TeacherID = @id";
                     using (MySqlCommand cmd = new MySqlCommand(sQuery, conn))
                     {
@@ -68,7 +68,7 @@ namespace TeachersAttendance.Pages
                     }
 
                     // 3. Get Recent Attendance Logs
-                    using (MySqlCommand cmd = new MySqlCommand("SELECT Date, TimeIn, Status FROM ATTENDANCE WHERE TeacherID = @id ORDER BY Date DESC LIMIT 10", conn))
+                    using (MySqlCommand cmd = new MySqlCommand("SELECT AttendanceID,Date, TimeIn, Status FROM ATTENDANCE WHERE TeacherID = @id ORDER BY Date DESC, TimeIn DESC LIMIT 10", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", id);
                         using (var r = cmd.ExecuteReader())
@@ -77,6 +77,7 @@ namespace TeachersAttendance.Pages
                             {
                                 AttendanceLogs.Add(new AttendanceVM
                                 {
+                                    AttendanceID = Convert.ToInt32(r["AttendanceID"]),
                                     Date = Convert.ToDateTime(r["Date"]).ToString("MMMM dd, yyyy"),
                                     Time = r["TimeIn"].ToString(),
                                     Status = r["Status"].ToString()
@@ -89,7 +90,7 @@ namespace TeachersAttendance.Pages
             catch (Exception ex) { Console.WriteLine(ex.Message); }
         }
 
-        // Handle the Time In Button click
+        
         public IActionResult OnPostTimeIn()
         {
             int teacherId = HttpContext.Session.GetInt32("TeacherID") ?? 1;
@@ -106,11 +107,41 @@ namespace TeachersAttendance.Pages
                     }
                 }
             }
-            catch (Exception ex) { /* Log error */ }
+            catch (Exception ex) { }
+            return RedirectToPage();
+        }
+
+        public IActionResult OnPostDeleteLog(int logId)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "DELETE FROM ATTENDANCE WHERE AttendanceID = @id";
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", logId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Delete Error: " + ex.Message);
+            }
+
+           
             return RedirectToPage();
         }
     }
 
     public class ScheduleVM { public string Subject, Day, Time, Room; }
-    public class AttendanceVM { public string Date, Time, Status; }
+    public class AttendanceVM
+    {
+        public int AttendanceID { get; set; }
+        public string Date { get; set; }
+        public string Time { get; set; }
+        public string Status { get; set; }
+    }
 }
