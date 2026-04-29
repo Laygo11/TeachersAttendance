@@ -1,5 +1,4 @@
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddRazorPages();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -10,6 +9,7 @@ builder.Services.AddSession(options =>
 });
 
 var app = builder.Build();
+
 
 if (!app.Environment.IsDevelopment())
 {

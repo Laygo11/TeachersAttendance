@@ -1,227 +1,180 @@
 ﻿@page
 @model TeachersAttendance.Pages.ScheduleModel
 @{
-    ViewData["Title"] = "My Schedule";
-    Layout = "_Layout";
+    Layout = null; // Disables default ASP.NET header/footer to use 100% of the screen
 }
 
-<style>
-    .schedule-wrapper {
-        max-width: 600px;
-        margin: 2rem auto;
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root { --primary: #2563eb; --dark: #0f172a; --bg: #f1f5f9; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); overflow: hidden; }
 
-    .top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.75rem;
-    }
+        .app-shell { display: flex; height: 100vh; width: 100vw; }
 
-    .teacher-name {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #212529;
-    }
+        /* Sidebar: Fixed width, full height */
+        .sidebar { width: 280px; background: var(--dark); color: white; display: flex; flex-direction: column; padding: 2rem 1.5rem; }
+        .brand { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 12px; margin-bottom: 3rem; }
+        .brand i { background: var(--primary); padding: 8px; border-radius: 8px; }
 
-    .teacher-dept {
-        font-size: 0.825rem;
-        color: #6c757d;
-        margin-top: 0.1rem;
-    }
+        .nav-list { flex: 1; list-style: none; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 12px; cursor: pointer; color: #94a3b8; transition: 0.2s; margin-bottom: 8px; border: none; background: transparent; width: 100%; text-align: left; font-size: 1rem; }
+        .nav-item:hover, .nav-item.active { background: #1e293b; color: white; }
+        .logout { color: #f87171; text-decoration: none; margin-top: auto; padding: 14px 18px; display: flex; align-items: center; gap: 12px; }
 
-    .logout-btn {
-        font-size: 0.85rem;
-        color: #dc3545;
-        text-decoration: none;
-        border: 1px solid #f5c2c7;
-        padding: 0.35rem 0.85rem;
-        border-radius: 6px;
-        background: #fff5f5;
-    }
+        /* Main Viewport: Flexible space */
+        .main-viewport { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .header { padding: 2.5rem 3.5rem; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid var(--border); }
+        .welcome h1 { font-size: 1.75rem; font-weight: 800; color: var(--dark); }
+        .welcome p { color: #64748b; font-weight: 500; }
+        
+        .clock-section { text-align: right; }
+        #liveTime { font-size: 2.25rem; font-weight: 900; color: var(--primary); line-height: 1; }
+        #liveDate { color: #94a3b8; font-weight: 600; margin-top: 4px; }
 
-        .logout-btn:hover {
-            background: #f8d7da;
-            color: #b02a37;
-        }
+        /* Dashboard Layout */
+        .content-padding { padding: 3rem 3.5rem; }
+        .dashboard-layout { display: grid; grid-template-columns: 350px 1fr; gap: 2.5rem; align-items: start; }
 
-    .date-row {
-        font-size: 0.875rem;
-        color: #6c757d;
-        margin-bottom: 1.25rem;
-    }
+        /* Cards */
+        .card { background: white; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.04); overflow: hidden; }
+        .card-title { padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; font-weight: 700; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
 
-    .section-title {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #adb5bd;
-        margin-bottom: 0.75rem;
-    }
+        /* Attendance Logic */
+        .terminal { padding: 2.5rem 2rem; text-align: center; }
+        .status-badge { display: inline-flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; margin-bottom: 2rem; }
+        .status-dot { height: 8px; width: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 10px #22c55e; }
+        
+        .btn-action { width: 100%; padding: 1.25rem; border-radius: 16px; border: none; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.2s; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-in { background: var(--primary); color: white; }
+        .btn-in:hover { background: #1d4ed8; transform: translateY(-2px); }
+        .btn-out { background: #f8fafc; color: #cbd5e1; cursor: not-allowed; }
 
-    .schedule-card {
-        background: #fff;
-        border: 1px solid #dee2e6;
-        border-left: 4px solid #0d6efd;
-        border-radius: 8px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 0.75rem;
-    }
+        /* Tables */
+        .table-wrap { padding: 0 1.5rem 1.5rem; }
+        .custom-table { width: 100%; border-collapse: collapse; }
+        .custom-table th { padding: 1rem; text-align: left; font-size: 0.75rem; color: #94a3b8; border-bottom: 1px solid #f1f5f9; }
+        .custom-table td { padding: 1.25rem 1rem; border-bottom: 1px solid #f8fafc; font-size: 0.95rem; }
+        .badge-present { background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; }
+        .room-tag { background: var(--dark); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
 
-        .schedule-card .subject {
-            font-weight: 600;
-            font-size: 1rem;
-            color: #212529;
-            margin-bottom: 0.3rem;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: slideIn 0.4s ease-out; }
+        @@keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
 
-        .schedule-card .meta {
-            font-size: 0.85rem;
-            color: #6c757d;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-    .no-schedule {
-        text-align: center;
-        padding: 2.5rem 1rem;
-        color: #6c757d;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border: 1px dashed #dee2e6;
-        font-size: 0.9rem;
-    }
-
-    .attendance-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: #d1e7dd;
-        color: #0a3622;
-        border-radius: 20px;
-        padding: 0.3rem 0.85rem;
-        font-size: 0.78rem;
-        font-weight: 500;
-        margin-bottom: 1.5rem;
-    }
-
-    .full-schedule-link {
-        display: block;
-        margin-top: 1.5rem;
-        text-align: center;
-        font-size: 0.875rem;
-        color: #0d6efd;
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-        .full-schedule-link:hover {
-            text-decoration: underline;
-        }
-
-    /* Full weekly schedule */
-    .weekly-section {
-        margin-top: 2rem;
-    }
-
-    .day-group {
-        margin-bottom: 1.25rem;
-    }
-
-    .day-label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #868e96;
-        margin-bottom: 0.5rem;
-    }
-
-    .schedule-card.weekly {
-        border-left-color: #6c757d;
-        padding: 0.75rem 1rem;
-    }
-
-        .schedule-card.weekly .subject {
-            font-size: 0.95rem;
-        }
-
-        .schedule-card.weekly .meta {
-            font-size: 0.82rem;
-        }
-</style>
-
-<div class="schedule-wrapper">
-    <!-- Top bar -->
-    <div class="top-bar">
-        <div>
-            <div class="teacher-name">@Model.TeacherName</div>
-            <div class="teacher-dept">@Model.Department</div>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="bi bi-person-workspace"></i>
+            <span>Teacher Attendance Management System</span>
         </div>
-        <a href="/Logout" class="logout-btn">Sign out</a>
-    </div>
+        <div class="nav-list">
+            <button class="nav-item active" onclick="nav('home', this)"><i class="bi bi-grid-fill"></i> Overview</button>
+            <button class="nav-item" onclick="nav('schedule', this)"><i class="bi bi-calendar-week"></i> Schedule</button>
+        </div>
+        <a href="/Logout" class="logout"><i class="bi bi-box-arrow-left"></i> Sign Out</a>
+    </aside>
 
-    <!-- Attendance badge -->
-    <div class="attendance-badge">✅ Attendance logged for today</div>
-
-    <!-- Today's schedule -->
-    <div class="date-row">📅 @DateTime.Now.ToString("dddd, MMMM d, yyyy")</div>
-    <div class="section-title">Today's Classes</div>
-
-    @if (Model.TodaySchedule.Count == 0)
-    {
-        <div class="no-schedule">No classes scheduled for today.</div>
-    }
-    else
-    {
-        @foreach (var item in Model.TodaySchedule)
-        {
-            <div class="schedule-card">
-                <div class="subject">@item.SubjectName</div>
-                <div class="meta">
-                    <span>🕐 @item.StartTime – @item.EndTime</span>
-                    <span>📍 @item.Room</span>
-                </div>
+    <main class="main-viewport">
+        <header class="header">
+            <div class="welcome">
+                <h1>Hello, @Model.TeacherName</h1>
+                <p>@Model.Department Faculty</p>
             </div>
-        }
-    }
+            <div class="clock-section">
+                <div id="liveTime">00:00:00</div>
+                <div id="liveDate">@DateTime.Now.ToString("dddd, dd MMMM")</div>
+            </div>
+        </header>
 
-    <!-- Weekly schedule toggle -->
-    <a class="full-schedule-link" onclick="toggleWeekly()" id="weeklyToggle">▼ View full weekly schedule</a>
-
-    <div class="weekly-section" id="weeklySection" style="display:none;">
-        <div class="section-title" style="margin-top:0.5rem;">Weekly Schedule</div>
-        @foreach (var day in Model.WeeklySchedule.Keys)
-        {
-            <div class="day-group">
-                <div class="day-label">@day</div>
-                @foreach (var item in Model.WeeklySchedule[day])
-                {
-                    <div class="schedule-card weekly">
-                        <div class="subject">@item.SubjectName</div>
-                        <div class="meta">
-                            <span>🕐 @item.StartTime – @item.EndTime</span>
-                            <span>📍 @item.Room</span>
+        <div class="content-padding">
+            <div id="home-view" class="tab-content active">
+                <div class="dashboard-layout">
+                    <div class="card">
+                        <div class="card-title">Terminal Access</div>
+                        <div class="terminal">
+                            <div class="status-badge">
+                                <span class="status-dot"></span> System Online
+                            </div>
+                            <form method="post" asp-page-handler="TimeIn">
+                                <button type="submit" class="btn-action btn-in">
+                                    <i class="bi bi-fingerprint"></i> TIME IN
+                                </button>
+                            </form>
+                            <button class="btn-action btn-out">
+                                <i class="bi bi-box-arrow-right"></i> TIME OUT
+                            </button>
                         </div>
                     </div>
-                }
+
+                    <div class="card">
+                        <div class="card-title">Attendance History</div>
+                        <div class="table-wrap">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr><th>DATE RECORDED</th><th>TIME IN</th><th>REMARKS</th></tr>
+                                </thead>
+                                <tbody>
+                                    @foreach(var log in Model.AttendanceLogs) {
+                                        <tr>
+                                            <td style="font-weight: 600;">@log.Date</td>
+                                            <td>@log.Time</td>
+                                            <td><span class="badge-present">@log.Status</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-        }
-    </div>
+
+            <div id="schedule-view" class="tab-content">
+                <div class="card">
+                    <div class="card-title">Your Assigned Load</div>
+                    <div class="table-wrap">
+                        <table class="custom-table">
+                            <thead>
+                                <tr><th>SUBJECT NAME</th><th>DAY & TIME</th><th>ROOM</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach(var s in Model.Schedules) {
+                                    <tr>
+                                        <td style="font-weight: 800; color: var(--primary);">@s.Subject</td>
+                                        <td>@s.Day &bull; @s.Time</td>
+                                        <td><span class="room-tag">@s.Room</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
 
 <script>
-    function toggleWeekly() {
-        const section = document.getElementById('weeklySection');
-        const toggle = document.getElementById('weeklyToggle');
-        if (section.style.display === 'none') {
-            section.style.display = 'block';
-            toggle.textContent = '▲ Hide weekly schedule';
-        } else {
-            section.style.display = 'none';
-            toggle.textContent = '▼ View full weekly schedule';
-        }
+    function nav(viewId, btn) {
+        document.querySelectorAll('.tab-content').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.getElementById(viewId + '-view').classList.add('active');
+        btn.classList.add('active');
     }
+
+    setInterval(() => {
+        document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-GB');
+    }, 1000);
 </script>
+
+</body>
+</html>

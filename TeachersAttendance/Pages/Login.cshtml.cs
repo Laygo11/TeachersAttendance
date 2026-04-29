@@ -6,7 +6,7 @@ namespace TeachersAttendance.Pages
 {
     public class LoginModel : PageModel
     {
-        private string connStr = "server=localhost;port=1108;database=TeacherAttendanceDB;user=root;password=;";
+        private string connStr = "server=127.0.0.1;port=1108;database=TeacherAttendanceDB;user=root;password=besselink;";
 
         [BindProperty]
         public string? EmployeeNumber { get; set; }
@@ -77,7 +77,7 @@ namespace TeachersAttendance.Pages
                     insertCmd.ExecuteNonQuery();
                 }
             }
-
+            HttpContext.Session.SetInt32("TeacherID", teacherId);
             return RedirectToPage("/Schedule");
         }
     }
